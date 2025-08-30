@@ -79,7 +79,39 @@ const uploadReceipt = async (req, res) => {
       }
     }
 
-    res.status(201).json({
+    // Automatically process OCR after successful upload
+    let extractedData = null;
+    let processingError = null;
+    let ocrService = null;
+
+    try {
+      console.log(`🔄 Auto-processing receipt: ${receipt.filename} with OCR`);
+      
+      // Use Gemini AI to process the receipt
+      extractedData = await geminiOCR.processReceipt(receipt.path, receipt.mimeType);
+      ocrService = geminiOCR.getStatus();
+
+      // Update receipt with extracted data
+      receipt.processed = true;
+      receipt.amount = extractedData.amount || 0;
+      receipt.description = extractedData.merchant || 'Unknown Store';
+      receipt.category = extractedData.category || 'Others';
+      await receipt.save();
+
+      console.log('✅ Receipt auto-processed successfully:', {
+        id: receipt._id,
+        merchant: extractedData.merchant,
+        amount: extractedData.amount
+      });
+
+    } catch (ocrError) {
+      console.error('⚠️ OCR Auto-processing failed:', ocrError.message);
+      processingError = ocrError.message;
+      ocrService = geminiOCR.getStatus();
+    }
+
+    // Prepare response with receipt data and OCR results
+    const responseData = {
       message: 'Receipt uploaded successfully',
       receipt: {
         id: receipt._id,
@@ -88,9 +120,19 @@ const uploadReceipt = async (req, res) => {
         description: receipt.description,
         amount: receipt.amount,
         category: receipt.category,
+        processed: receipt.processed,
         createdAt: receipt.createdAt
-      }
-    });
+      },
+      // Include OCR processing results
+      ocrProcessed: !!extractedData,
+      extractedData: extractedData,
+      ocrService: ocrService,
+      processingError: processingError,
+      // Add flag to indicate if user should be asked about transaction creation
+      canCreateTransaction: !!extractedData
+    };
+
+    res.status(201).json(responseData);
   } catch (error) {
     // Clean up uploaded file if database save fails
     if (req.file && fs.existsSync(req.file.path)) {

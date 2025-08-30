@@ -45,6 +45,10 @@ const Receipts = () => {
   // Success message state
   const [successMessage, setSuccessMessage] = useState(null);
 
+  // Transaction creation modal
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [pendingTransactionData, setPendingTransactionData] = useState(null);
+
   useEffect(() => {
     fetchReceipts();
     fetchOCRStatus();
@@ -143,65 +147,47 @@ const Receipts = () => {
       // Refresh receipts list
       await fetchReceipts();
       
-      // Show success message with helpful information
-      setError('');  // Clear any previous errors
-      
-      // Determine message type based on response
-      const isProcessingWarning = response._isProcessingWarning || response.success === false;
-      const hasProcessingError = response.processingError;
-      
-      let messageClass, iconClass, title, message;
-      
-      if (isProcessingWarning && hasProcessingError) {
-        // Processing failed but upload succeeded
-        messageClass = 'bg-yellow-50 border-yellow-200 text-yellow-700';
-        iconClass = 'text-yellow-400';
-        title = 'Receipt uploaded with processing issues';
-        message = `Your receipt has been uploaded but OCR processing failed: ${hasProcessingError}. You can review and process it manually.`;
-      } else if (isProcessingWarning) {
-        // Processing warning but no specific error
-        messageClass = 'bg-yellow-50 border-yellow-200 text-yellow-700';
-        iconClass = 'text-yellow-400';
-        title = 'Receipt uploaded with processing issues';
-        message = 'Your receipt has been uploaded but there were some issues with OCR processing. You can review and process it manually.';
+      // Check if OCR processing was successful
+      if (response.ocrProcessed && response.canCreateTransaction && response.extractedData) {
+        // Show transaction creation modal
+        setPendingTransactionData({
+          receiptId: response.receipt.id,
+          extractedData: response.extractedData
+        });
+        setShowTransactionModal(true);
+        
+        // Show success message for OCR processing
+        setSuccessMessage({
+          class: 'bg-green-50 border-green-200 text-green-700',
+          iconClass: 'text-green-400',
+          title: 'Receipt uploaded and processed successfully!',
+          message: `Receipt data extracted: ₹${response.extractedData.amount} from ${response.extractedData.merchant}. You can now create a transaction.`
+        });
+      } else if (response.processingError) {
+        // OCR processing failed
+        setSuccessMessage({
+          class: 'bg-yellow-50 border-yellow-200 text-yellow-700',
+          iconClass: 'text-yellow-400',
+          title: 'Receipt uploaded with processing issues',
+          message: `Your receipt has been uploaded but OCR processing failed: ${response.processingError}. You can process it manually later.`
+        });
       } else {
-        // Success
-        messageClass = 'bg-green-50 border-green-200 text-green-700';
-        iconClass = 'text-green-400';
-        title = 'Receipt uploaded successfully!';
-        message = 'Your receipt has been uploaded and is now being processed with OCR. You can check its status in the list below.';
+        // Standard upload success
+        setSuccessMessage({
+          class: 'bg-green-50 border-green-200 text-green-700',
+          iconClass: 'text-green-400',
+          title: 'Receipt uploaded successfully!',
+          message: 'Your receipt has been uploaded and is ready for processing.'
+        });
       }
       
-      // Show success message using React state
-      setSuccessMessage({
-        class: messageClass,
-        iconClass: iconClass,
-        title: title,
-        message: message
-      });
-      
-      // Clear the success message after an appropriate duration
-      // Use longer duration (10s) for processing failures, standard duration (6s) for success
-      const messageTimeout = (isProcessingWarning && hasProcessingError) ? 10000 : 6000;
+      // Clear the success message after 8 seconds
       setTimeout(() => {
         setSuccessMessage(null);
-      }, messageTimeout);
+      }, 8000);
       
     } catch (error) {
       console.log('Receipt upload error caught:', error);
-      console.log('Error details:', {
-        message: error.message,
-        status: error.status,
-        details: error.details,
-        response: error.response?.data
-      });
-      
-      // Check if this is a processing warning (handled by API interceptor)
-      if (error._isProcessingWarning || error.success === false) {
-        // This was handled by the API interceptor as a success with warnings
-        // The success message should already be shown above
-        return;
-      }
       
       let errorMessage = 'Failed to upload receipt';
       
@@ -325,6 +311,52 @@ const Receipts = () => {
         setError('');
       }, 5000);
     }
+  };
+
+  // Handle transaction creation from upload modal
+  const handleCreateTransactionFromUpload = async (shouldCreate) => {
+    if (shouldCreate && pendingTransactionData) {
+      try {
+        // Show processing notification
+        setSuccessMessage({
+          class: 'bg-blue-50 border-blue-200 text-blue-700',
+          iconClass: 'text-blue-400',
+          title: 'Creating Transaction...',
+          message: `Creating transaction for ₹${pendingTransactionData.extractedData.amount}...`
+        });
+
+        // Create transaction using the backend API
+        const response = await receiptAPI.createTransaction(pendingTransactionData.receiptId, {
+          type: 'expense',
+          category: pendingTransactionData.extractedData.category || 'Others'
+        });
+
+        // Show success message
+        setSuccessMessage({
+          class: 'bg-green-50 border-green-200 text-green-700',
+          iconClass: 'text-green-400',
+          title: 'Transaction Created Successfully!',
+          message: `Transaction for ₹${response.transaction.amount} has been created and linked to your receipt.`
+        });
+
+        // Clear the success message after 6 seconds
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 6000);
+
+      } catch (error) {
+        setError(error.message || 'Failed to create transaction from receipt');
+        
+        // Clear error after 5 seconds
+        setTimeout(() => {
+          setError('');
+        }, 5000);
+      }
+    }
+    
+    // Close modal and clear pending data
+    setShowTransactionModal(false);
+    setPendingTransactionData(null);
   };
 
   const handleDeleteReceipt = async (receiptId) => {
@@ -743,6 +775,94 @@ const Receipts = () => {
                   <li className="text-yellow-700">• Configure Gemini API for real AI processing</li>
                 )}
               </ul>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Transaction Creation Modal (shown after successful OCR processing) */}
+      <Modal
+        isOpen={showTransactionModal}
+        onClose={() => handleCreateTransactionFromUpload(false)}
+        title="Create Transaction from Receipt?"
+      >
+        {pendingTransactionData && (
+          <div className="space-y-6">
+            {/* Success notification */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="text-green-600">✅</span>
+                <span className="text-sm font-medium text-green-800">Receipt Processed Successfully!</span>
+              </div>
+              <p className="text-sm text-green-700">
+                We've extracted transaction details from your receipt using AI.
+              </p>
+            </div>
+
+            {/* Extracted Data Preview */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Extracted Transaction Details</h4>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                {pendingTransactionData.extractedData.amount && (
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-700">Amount:</span>
+                    <span className="text-lg text-gray-900 font-bold">
+                      ₹{pendingTransactionData.extractedData.amount}
+                    </span>
+                  </div>
+                )}
+                {pendingTransactionData.extractedData.merchant && (
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-700">Merchant:</span>
+                    <span className="text-sm text-gray-900">{pendingTransactionData.extractedData.merchant}</span>
+                  </div>
+                )}
+                {pendingTransactionData.extractedData.category && (
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-700">Category:</span>
+                    <span className="text-sm text-gray-900">{pendingTransactionData.extractedData.category}</span>
+                  </div>
+                )}
+                {pendingTransactionData.extractedData.date && (
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-700">Date:</span>
+                    <span className="text-sm text-gray-900">{pendingTransactionData.extractedData.date}</span>
+                  </div>
+                )}
+                {pendingTransactionData.extractedData.items && pendingTransactionData.extractedData.items.length > 0 && (
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Items:</span>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {pendingTransactionData.extractedData.items.slice(0, 3).join(', ')}
+                      {pendingTransactionData.extractedData.items.length > 3 && '...'}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3">
+              <button
+                onClick={() => handleCreateTransactionFromUpload(true)}
+                className="flex-1 bg-gray-600 text-white px-4 py-3 rounded-md hover:bg-gray-700 font-medium flex items-center justify-center space-x-2"
+              >
+                <span>💳</span>
+                <span>Yes, Create Transaction</span>
+              </button>
+              <button
+                onClick={() => handleCreateTransactionFromUpload(false)}
+                className="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-md hover:bg-gray-300 font-medium"
+              >
+                Skip for Now
+              </button>
+            </div>
+
+            {/* Help text */}
+            <div className="text-center">
+              <p className="text-xs text-gray-500">
+                You can always create transactions from receipts later by viewing them in the list below.
+              </p>
             </div>
           </div>
         )}

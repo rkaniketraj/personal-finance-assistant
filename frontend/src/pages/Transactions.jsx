@@ -1,13 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/common/Header';
 import { transactionAPI } from '../services/api';
 import Modal from '../components/common/Modal';
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Chip,
+  IconButton,
+  Typography,
+  Box
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Transactions = () => {
   const [searchParams] = useSearchParams();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [filters, setFilters] = useState({
     startDate: '',
@@ -23,40 +39,59 @@ const Transactions = () => {
     description: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const columns = [
+    { id: 'date', label: 'Date', minWidth: 100 },
+    { id: 'description', label: 'Description', minWidth: 170 },
+    { id: 'category', label: 'Category', minWidth: 100 },
+    { id: 'type', label: 'Type', minWidth: 80, align: 'center' },
+    { id: 'amount', label: 'Amount', minWidth: 100, align: 'right' },
+    { id: 'actions', label: 'Actions', minWidth: 80, align: 'center' },
+  ];
 
   const categories = {
     expense: ['Food & Dining', 'Transportation', 'Shopping', 'Entertainment', 'Others'],
     income: ['Salary', 'Business', 'Investment', 'Others']
   };
 
-  useEffect(() => {
-    fetchTransactions();
-    
-    // Check if we should open add modal
-    if (searchParams.get('action') === 'add') {
-      setShowAddModal(true);
-    }
-  }, [searchParams]);
-
-  const fetchTransactions = async (filterParams = {}) => {
+  const fetchTransactions = useCallback(async (filterParams = {}) => {
     try {
+      setError(null);
+      console.log('Fetching transactions with params:', { ...filters, ...filterParams });
       const params = { ...filters, ...filterParams };
       // Remove empty values
       const cleanParams = Object.fromEntries(
         Object.entries(params).filter(([, value]) => value !== '' && value !== null)
       );
       
+      console.log('Clean params:', cleanParams);
       const response = await transactionAPI.getAll(cleanParams);
+      console.log('API response:', response);
       const transactionsData = response.transactions || [];
+      console.log('Transactions data:', transactionsData);
       // Sort by date in descending order (most recent first)
       const sortedTransactions = transactionsData.sort((a, b) => new Date(b.date) - new Date(a.date));
       setTransactions(sortedTransactions);
     } catch (error) {
       console.error('Error fetching transactions:', error);
+      setError(error.message || 'Failed to fetch transactions');
+      // Set an empty array so the component can render
+      setTransactions([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+    useEffect(() => {
+    fetchTransactions();
+    
+    // Check if we should open add modal
+    if (searchParams.get('action') === 'add') {
+      setShowAddModal(true);
+    }
+  }, [searchParams, fetchTransactions]);
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({
@@ -122,6 +157,25 @@ const Transactions = () => {
     }).format(amount);
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  const createData = (transaction) => ({
+    id: transaction._id,
+    date: new Date(transaction.date).toLocaleDateString(),
+    description: transaction.description || 'No description',
+    category: transaction.category,
+    type: transaction.type,
+    amount: transaction.amount,
+    transaction: transaction
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -135,6 +189,9 @@ const Transactions = () => {
       </div>
     );
   }
+
+  console.log('Transactions state:', transactions);
+  console.log('Loading state:', loading);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -239,84 +296,97 @@ const Transactions = () => {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+
+        <Paper sx={{ width: '100%', overflow: 'hidden', borderRadius: 2, boxShadow: 1 }}>
           {transactions.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-4">📝</div>
-              <h3 className="text-lg font-medium mb-2">No transactions yet</h3>
+            <Box sx={{ textAlign: 'center', py: 12 }}>
+              <Typography variant="h1" sx={{ fontSize: '4rem', mb: 2 }}>📝</Typography>
+              <Typography variant="h6" sx={{ mb: 2 }}>No transactions yet</Typography>
               <button
                 onClick={() => setShowAddModal(true)}
                 className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
               >
                 Add Your First Transaction
               </button>
-            </div>
+            </Box>
           ) : (
-            <div className="overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Category
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {transactions.map((transaction) => (
-                    <tr key={transaction._id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(transaction.date).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {transaction.description || 'No description'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {transaction.category}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          transaction.type === 'income' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {transaction.type}
-                        </span>
-                      </td>
-                      <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleDelete(transaction._id)}
-                          className="text-red-600 hover:text-red-900"
+            <>
+              <TableContainer sx={{ maxHeight: 500 }}>
+                <Table stickyHeader aria-label="transactions table">
+                  <TableHead>
+                    <TableRow>
+                      {columns.map((column) => (
+                        <TableCell
+                          key={column.id}
+                          align={column.align}
+                          style={{ minWidth: column.minWidth, fontWeight: 'bold' }}
                         >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          {column.label}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {transactions
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((transaction) => {
+                        const row = createData(transaction);
+                        return (
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.id} sx={{ height: '40px' }}>
+                            <TableCell sx={{ padding: '4px 16px' }}>{row.date}</TableCell>
+                            <TableCell sx={{ padding: '4px 16px' }}>{row.description}</TableCell>
+                            <TableCell sx={{ padding: '4px 16px' }}>{row.category}</TableCell>
+                            <TableCell align="center" sx={{ padding: '4px 16px' }}>
+                              <Chip
+                                label={row.type}
+                                color={row.type === 'income' ? 'success' : 'error'}
+                                size="small"
+                                variant="outlined"
+                              />
+                            </TableCell>
+                            <TableCell 
+                              align="right" 
+                              sx={{ 
+                                color: row.type === 'income' ? 'success.main' : 'error.main',
+                                fontWeight: 'bold',
+                                padding: '4px 16px'
+                              }}
+                            >
+                              {row.type === 'income' ? '+' : '-'} {formatCurrency(row.amount)}
+                            </TableCell>
+                            <TableCell align="center" sx={{ padding: '4px 16px' }}>
+                              <IconButton
+                                onClick={() => handleDelete(row.id)}
+                                color="error"
+                                size="small"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                component="div"
+                count={transactions.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </>
           )}
-        </div>
+        </Paper>
       </div>
 
       {/* Add Transaction Modal */}
