@@ -1,12 +1,19 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../../utils/auth';
+import { authAPI } from '../../services/api';
 
 const Header = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout(); // Call backend to clear cookie
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      logout(); // Clear local user data
+      navigate('/');
+    }
   };
 
   return (

@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -9,8 +10,12 @@ const transactionRoutes = require('./routes/transactions');
 const app = express();
 
 // Basic middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Frontend URL
+  credentials: true // Allow cookies to be sent
+}));
 app.use(express.json());
+app.use(cookieParser()); // Add cookie parser middleware
 
 // Routes
 app.use('/api/auth', authRoutes);

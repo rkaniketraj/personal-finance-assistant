@@ -40,7 +40,7 @@ const Register = ({ setIsAuth }) => {
         password: formData.password
       });
 
-      login(response.data.token, response.data.user);
+      login(response.user); // No token needed, it's in HTTP-only cookie
       setIsAuth(true);
       navigate('/dashboard');
     } catch (error) {
@@ -60,7 +60,7 @@ const Register = ({ setIsAuth }) => {
         password: 'demo123'
       });
 
-      login(response.data.token, response.data.user);
+      login(response.user); // No token needed, it's in HTTP-only cookie
       setIsAuth(true);
       navigate('/dashboard');
     } catch (error) {

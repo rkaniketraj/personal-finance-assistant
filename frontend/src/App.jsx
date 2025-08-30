@@ -16,7 +16,8 @@ import Header from './components/common/Header';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Utils
-import { isAuthenticated, initializeAuth } from './utils/auth';
+import { isAuthenticated, initializeAuth, setUser, shouldFetchProfile } from './utils/auth';
+import { authAPI } from './services/api';
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
@@ -24,9 +25,30 @@ function App() {
 
   useEffect(() => {
     // Initialize authentication state
-    const authStatus = initializeAuth();
-    setIsAuth(authStatus);
-    setLoading(false);
+    const initAuth = async () => {
+      const hasUserData = initializeAuth();
+      
+      if (hasUserData) {
+        // We have user data, assume authenticated
+        setIsAuth(true);
+      } else {
+        // Try to get profile to check if we have a valid cookie
+        try {
+          const response = await authAPI.getProfile();
+          if (response.user) {
+            setUser(response.user);
+            setIsAuth(true);
+          }
+        } catch {
+          // No valid cookie or server error, stay unauthenticated
+          setIsAuth(false);
+        }
+      }
+      
+      setLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   if (loading) {

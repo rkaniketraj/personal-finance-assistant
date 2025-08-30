@@ -26,7 +26,7 @@ const Login = ({ setIsAuth }) => {
 
     try {
       const response = await authAPI.login(formData);
-      login(response.data.token, response.data.user);
+      login(response.user); // No token needed, it's in HTTP-only cookie
       setIsAuth(true);
       navigate('/dashboard');
     } catch (error) {
@@ -45,7 +45,7 @@ const Login = ({ setIsAuth }) => {
         email: 'demo@finance.com',
         password: 'demo123'
       });
-      login(response.data.token, response.data.user);
+      login(response.user); // No token needed, it's in HTTP-only cookie
       setIsAuth(true);
       navigate('/dashboard');
     } catch {

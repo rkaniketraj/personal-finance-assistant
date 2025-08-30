@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getToken, removeToken } from '../utils/auth';
+import { removeToken } from '../utils/auth';
 
 const BASE_URL = 'http://localhost:5000/api'; // Update with your backend URL
 
@@ -7,19 +7,14 @@ const BASE_URL = 'http://localhost:5000/api'; // Update with your backend URL
 export const api = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
+  withCredentials: true, // Enable sending cookies with requests
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add auth token to requests
-api.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// No need for auth token interceptor since cookies are handled automatically
+// api.interceptors.request.use() - removed
 
 // Handle common response errors
 api.interceptors.response.use(
@@ -35,7 +30,7 @@ api.interceptors.response.use(
 
     // Handle authentication errors
     if (error.response.status === 401) {
-      removeToken();
+      removeToken(); // Clear user data
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/login';
       }
@@ -53,6 +48,7 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   register: (userData) => api.post('/auth/register', userData),
+  logout: () => api.post('/auth/logout'),
   getProfile: () => api.get('/auth/profile'),
 };
 

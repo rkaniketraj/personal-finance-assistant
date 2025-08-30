@@ -23,10 +23,17 @@ const register = async (req, res) => {
 
     const token = generateToken(user._id);
 
+    // Set HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+    });
+
     res.status(201).json({
       message: 'User created successfully',
-      user: { id: user._id, name: user.name, email: user.email },
-      token
+      user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -52,10 +59,17 @@ const login = async (req, res) => {
 
     const token = generateToken(user._id);
 
+    // Set HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+    });
+
     res.json({
       message: 'Login successful',
-      user: { id: user._id, name: user.name, email: user.email },
-      token
+      user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -72,4 +86,20 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getProfile };
+// Logout user
+const logout = async (req, res) => {
+  try {
+    // Clear the token cookie
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+
+    res.json({ message: 'Logout successful' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { register, login, getProfile, logout };
