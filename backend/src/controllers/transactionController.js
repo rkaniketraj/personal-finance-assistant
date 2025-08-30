@@ -24,8 +24,14 @@ const createTransaction = async (req, res) => {
 // Get all transactions for user
 const getTransactions = async (req, res) => {
   try {
-    const transactions = await Transaction.find({ userId: req.userId })
-      .sort({ date: -1 });
+    const { limit } = req.query;
+    let query = Transaction.find({ userId: req.userId }).sort({ createdAt: -1 });
+    
+    if (limit) {
+      query = query.limit(parseInt(limit));
+    }
+    
+    const transactions = await query;
     res.json({ transactions });
   } catch (error) {
     res.status(500).json({ message: error.message });

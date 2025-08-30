@@ -34,7 +34,10 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       const response = await transactionAPI.getAll();
-      setTransactions(response.data.transactions || []);
+      const transactionsData = response.transactions || [];
+      // Sort by date in descending order (most recent first)
+      const sortedTransactions = transactionsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setTransactions(sortedTransactions);
     } catch (error) {
       console.error('Error fetching transactions:', error);
     } finally {

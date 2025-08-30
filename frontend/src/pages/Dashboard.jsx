@@ -24,14 +24,17 @@ const Dashboard = () => {
         transactionAPI.getAnalytics()
       ]);
       
-      setRecentTransactions(transactionsResponse.data.transactions || []);
+      const transactionsData = transactionsResponse.transactions || [];
+      // Sort by date in descending order (most recent first)
+      const sortedTransactions = transactionsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setRecentTransactions(sortedTransactions);
       
-      const analytics = analyticsResponse.data;
+      const analytics = analyticsResponse.summary;
       if (analytics) {
         setSummary({
           totalIncome: analytics.totalIncome || 0,
-          totalExpenses: analytics.totalExpenses || 0,
-          balance: (analytics.totalIncome || 0) - (analytics.totalExpenses || 0)
+          totalExpenses: analytics.totalExpense || 0,
+          balance: analytics.balance || 0
         });
       }
     } catch (error) {
