@@ -3,7 +3,7 @@ const Transaction = require('../models/Transaction');
 // Create new transaction
 const createTransaction = async (req, res) => {
   try {
-    const { type, amount, category, description, date } = req.body;
+    const { type, amount, category, description, date, receiptId } = req.body;
 
     const transaction = new Transaction({
       userId: req.userId,
@@ -11,7 +11,8 @@ const createTransaction = async (req, res) => {
       amount,
       category,
       description,
-      date: date || new Date()
+      date: date || new Date(),
+      receiptId: receiptId || null
     });
 
     await transaction.save();

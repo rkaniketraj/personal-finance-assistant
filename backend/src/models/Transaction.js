@@ -41,6 +41,11 @@ const transactionSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  receiptId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Receipt',
+    default: null
   }
 }, {
   timestamps: true

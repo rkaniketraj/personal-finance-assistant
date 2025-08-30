@@ -71,6 +71,9 @@ export const receiptAPI = {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   getAll: () => api.get('/receipts'),
+  getStatus: () => api.get('/receipts/status'),
+  processOCR: (id) => api.post(`/receipts/${id}/process`),
+  createTransaction: (id, data = {}) => api.post(`/receipts/${id}/transaction`, data),
   delete: (id) => api.delete(`/receipts/${id}`),
 };
 

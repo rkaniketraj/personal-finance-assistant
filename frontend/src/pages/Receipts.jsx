@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import { receiptAPI } from '../services/api';
 import Modal from '../components/common/Modal';
@@ -28,7 +27,6 @@ import Loader from '../components/common/Loader';
 // };
 
 const Receipts = () => {
-  const navigate = useNavigate();
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -37,6 +35,7 @@ const Receipts = () => {
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [extractedData, setExtractedData] = useState(null);
   const [processingReceipt, setProcessingReceipt] = useState(null);
+  const [ocrStatus, setOcrStatus] = useState(null);
 
   // File upload state
   const [dragActive, setDragActive] = useState(false);
@@ -48,13 +47,24 @@ const Receipts = () => {
 
   useEffect(() => {
     fetchReceipts();
+    fetchOCRStatus();
   }, []);
+
+  const fetchOCRStatus = async () => {
+    try {
+      const status = await receiptAPI.getStatus();
+      setOcrStatus(status.ocr);
+    } catch (error) {
+      console.error('Failed to fetch OCR status:', error);
+      setOcrStatus({ configured: false, service: 'Mock OCR' });
+    }
+  };
 
   const fetchReceipts = async () => {
     try {
       setLoading(true);
       const response = await receiptAPI.getAll();
-      setReceipts(response.data.receipts || []);
+      setReceipts(response.receipts || []);
     } catch (error) {
       setError(error.message || 'Failed to fetch receipts');
     } finally {
@@ -243,14 +253,31 @@ const Receipts = () => {
       setError('');
 
       const response = await receiptAPI.processOCR(receiptId);
-      setExtractedData(response.data.extractedData);
+      setExtractedData(response.extractedData);
       
       // Update the receipt in the list
       setReceipts(prev => prev.map(r => 
         r._id === receiptId 
-          ? { ...r, extractedData: response.data.extractedData }
+          ? { ...r, extractedData: response.extractedData }
           : r
       ));
+
+      // Show success message with service info
+      const serviceInfo = response.service ? 
+        `Processed with ${response.service.service}${response.service.configured ? ' (AI-powered)' : ' (mock data)'}` :
+        'Processing completed';
+
+      setSuccessMessage({
+        class: 'bg-green-50 border-green-200 text-green-700',
+        iconClass: 'text-green-400',
+        title: 'OCR Processing Complete!',
+        message: `Receipt data extracted successfully. ${serviceInfo}`
+      });
+
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
 
     } catch (error) {
       setError(error.message || 'Failed to process OCR');
@@ -261,72 +288,42 @@ const Receipts = () => {
 
   const handleCreateTransaction = async (extractedData) => {
     try {
-      // Close the current modal
       setShowPreviewModal(false);
       
-      // Create the transaction object from extracted data
-      const transactionData = {
-        amount: extractedData.amount,
-        merchant: extractedData.merchant,
-        date: extractedData.date,
-        description: extractedData.items?.join(', ') || '',
-        type: 'expense', // Default type
-        category: 'uncategorized', // Default category
-        receiptId: selectedReceipt._id // Link to the receipt
-      };
-
-      // Create notification container if it doesn't exist
-      let notificationContainer = document.querySelector('#notification-container');
-      if (!notificationContainer) {
-        notificationContainer = document.createElement('div');
-        notificationContainer.id = 'notification-container';
-        notificationContainer.className = 'fixed top-4 right-4 z-50 space-y-4 max-w-md';
-        document.body.appendChild(notificationContainer);
-      }
-
       // Show processing notification
-      const notificationDiv = document.createElement('div');
-      notificationDiv.className = 'bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 opacity-0';
-      notificationDiv.innerHTML = `
-        <div class="flex items-start">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="ml-3 flex-1">
-            <h3 class="text-sm font-medium text-green-800">Creating Transaction</h3>
-            <div class="mt-2 text-sm text-green-700">
-              <p>Creating transaction for ₹${extractedData.amount} at ${extractedData.merchant}...</p>
-            </div>
-          </div>
-        </div>
-      `;
-      // Auto-hide after 6 seconds
-      setTimeout(() => {
-        // notificationDiv.innerHTML = '';
-        notificationDiv.style.display = 'none';
-      }, 6000);
-      
-      // Add the notification and animate it
-      notificationContainer.appendChild(notificationDiv);
-      setTimeout(() => {
-        notificationDiv.classList.add('opacity-100');
-        notificationDiv.classList.add('translate-y-0');
-      }, 100);
-
-      // Navigate to transactions page with the data
-      // navigate(`/transactions/new?${new URLSearchParams(transactionData).toString()}`);
-
-      navigate('/transactions', {
-        state: { 
-          transactionData,
-          showCreateModal: true 
-        }
+      setSuccessMessage({
+        class: 'bg-blue-50 border-blue-200 text-blue-700',
+        iconClass: 'text-blue-400',
+        title: 'Creating Transaction...',
+        message: `Creating transaction for ₹${extractedData.amount} at ${extractedData.merchant}...`
       });
-      
+
+      // Create transaction using the backend API
+      const response = await receiptAPI.createTransaction(selectedReceipt._id, {
+        type: 'expense',
+        category: extractedData.category || 'Others'
+      });
+
+      // Show success message
+      setSuccessMessage({
+        class: 'bg-green-50 border-green-200 text-green-700',
+        iconClass: 'text-green-400',
+        title: 'Transaction Created Successfully!',
+        message: `Transaction for ₹${response.transaction.amount} has been created and linked to your receipt.`
+      });
+
+      // Clear the success message after 5 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+
     } catch (error) {
-      setError(error.message || 'Failed to create transaction');
+      setError(error.message || 'Failed to create transaction from receipt');
+      
+      // Clear error after 5 seconds
+      setTimeout(() => {
+        setError('');
+      }, 5000);
     }
   };
 
@@ -372,9 +369,27 @@ const Receipts = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Receipts</h1>
-          <p className="text-gray-600">
-            Upload receipts and automatically create transactions with OCR technology
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-gray-600">
+              Upload receipts and automatically create transactions with AI-powered OCR
+            </p>
+            {ocrStatus && (
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${ocrStatus.configured ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                <span className="text-sm text-gray-500">
+                  {ocrStatus.service} {ocrStatus.configured ? '✨' : '🔧'}
+                </span>
+              </div>
+            )}
+          </div>
+          {ocrStatus && !ocrStatus.configured && (
+            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                <strong>Development Mode:</strong> Using mock OCR data. 
+                Configure Gemini API key in backend for real AI-powered receipt processing.
+              </p>
+            </div>
+          )}
         </div>
 
                  {/* Error Message */}
@@ -718,12 +733,15 @@ const Receipts = () => {
 
             {/* Help Section */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-blue-900 mb-2">💡 How Receipt Processing Works</h4>
+              <h4 className="text-sm font-medium text-blue-900 mb-2">💡 AI-Powered Receipt Processing</h4>
               <ul className="text-xs text-blue-800 space-y-1">
                 <li>• Upload receipt images (JPEG, PNG) or PDF files (max 10MB)</li>
-                <li>• OCR technology automatically extracts transaction details</li>
+                <li>• {ocrStatus?.configured ? 'Gemini AI automatically' : 'Mock OCR service'} extracts transaction details</li>
                 <li>• Review extracted information and create transactions instantly</li>
                 <li>• All receipt data is linked to your transactions for record keeping</li>
+                {!ocrStatus?.configured && (
+                  <li className="text-yellow-700">• Configure Gemini API for real AI processing</li>
+                )}
               </ul>
             </div>
           </div>

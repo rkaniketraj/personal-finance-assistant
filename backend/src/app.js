@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const transactionRoutes = require('./routes/transactions');
+const receiptRoutes = require('./routes/receipts');
 
 const app = express();
 
@@ -17,9 +18,13 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser()); // Add cookie parser middleware
 
+// Serve uploaded files statically
+app.use('/uploads', express.static('uploads'));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/receipts', receiptRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
