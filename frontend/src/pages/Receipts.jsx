@@ -3,6 +3,7 @@ import Header from '../components/common/Header';
 import { receiptAPI } from '../services/api';
 import Modal from '../components/common/Modal';
 import Loader from '../components/common/Loader';
+import config from '../config';
 
 // const getErrorMessage = (error) => {
 //   if (error?.message?.includes('No text could be extracted')) {
@@ -609,6 +610,12 @@ const Receipts = () => {
                         >
                           {receipt.extractedData ? 'Create Transaction' : 'View & Process'}
                         </button>
+                        <button
+                          onClick={() => window.open(`${config.API_BASE_URL}/receipts/${receipt._id}/image`, '_blank')}
+                          className="text-purple-600 hover:text-purple-700 text-sm font-medium"
+                        >
+                          View Image
+                        </button>
                         {!receipt.extractedData && (
                           <button
                             onClick={() => handleProcessOCR(receipt._id)}
@@ -650,19 +657,28 @@ const Receipts = () => {
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Receipt File</h4>
               <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
-                    <span className="text-lg">
-                      {selectedReceipt.filename.endsWith('.pdf') ? '📄' : '🖼️'}
-                    </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                      <span className="text-lg">
+                        {selectedReceipt.filename.endsWith('.pdf') ? '📄' : '🖼️'}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{selectedReceipt.filename}</p>
+                      <p className="text-sm text-gray-600">
+                        Size: {formatFileSize(selectedReceipt.fileSize)} | 
+                        Uploaded: {formatDate(selectedReceipt.uploadDate)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{selectedReceipt.filename}</p>
-                    <p className="text-sm text-gray-600">
-                      Size: {formatFileSize(selectedReceipt.fileSize)} | 
-                      Uploaded: {formatDate(selectedReceipt.uploadDate)}
-                    </p>
-                  </div>
+                  <button
+                    onClick={() => window.open(`${config.API_BASE_URL}/receipts/${selectedReceipt._id}/image`, '_blank')}
+                    className="bg-purple-600 text-white px-3 py-2 rounded text-sm font-medium hover:bg-purple-700 flex items-center space-x-1"
+                  >
+                    <span>🖼️</span>
+                    <span>View Image</span>
+                  </button>
                 </div>
               </div>
             </div>

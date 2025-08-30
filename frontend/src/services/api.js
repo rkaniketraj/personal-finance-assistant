@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { removeToken } from '../utils/auth';
+import config from '../config';
 
-const BASE_URL = 'http://localhost:5000/api'; // Update with your backend URL
+const BASE_URL = config.API_BASE_URL;
 
 // Create axios instance
 export const api = axios.create({
@@ -50,6 +51,8 @@ export const authAPI = {
   register: (userData) => api.post('/auth/register', userData),
   logout: () => api.post('/auth/logout'),
   getProfile: () => api.get('/auth/profile'),
+  updateProfile: (data) => api.put('/auth/profile', data),
+  updatePassword: (data) => api.put('/auth/password', data),
 };
 
 export const transactionAPI = {

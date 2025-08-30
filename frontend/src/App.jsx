@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Receipts from './pages/Receipts';
 import Analysis from './pages/Analysis';
+import Profile from './pages/Profile';
 
 // Components
 import Header from './components/common/Header';
@@ -95,6 +96,11 @@ function App() {
           <Route path="/analysis" element={
             <ProtectedRoute isAuth={isAuth}>
               <Analysis />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute isAuth={isAuth}>
+              <Profile />
             </ProtectedRoute>
           } />
           
