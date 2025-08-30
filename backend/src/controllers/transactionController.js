@@ -22,10 +22,22 @@ const createTransaction = async (req, res) => {
   }
 };
 
-// Get all transactions for user
+// Get all transactions for user with pagination
 const getTransactions = async (req, res) => {
   try {
-    const { limit, startDate, endDate, type, category } = req.query;
+    const { 
+      limit = 10, 
+      page = 1, 
+      startDate, 
+      endDate, 
+      type, 
+      category 
+    } = req.query;
+    
+    // Parse pagination parameters
+    const pageNumber = parseInt(page) || 1;
+    const limitNumber = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
     
     // Build filter query
     let filter = { userId: req.userId };
@@ -54,22 +66,37 @@ const getTransactions = async (req, res) => {
       filter.category = category;
     }
     
-    let query = Transaction.find(filter).sort({ createdAt: -1 });
+    // Get total count for pagination
+    const totalTransactions = await Transaction.countDocuments(filter);
     
-    if (limit) {
-      query = query.limit(parseInt(limit));
-    }
+    // Get paginated transactions
+    const transactions = await Transaction.find(filter)
+      .sort({ date: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber);
     
-    const transactions = await query;
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalTransactions / limitNumber);
+    const hasNextPage = pageNumber < totalPages;
+    const hasPrevPage = pageNumber > 1;
     
     res.json({ 
       transactions,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages,
+        totalTransactions,
+        limit: limitNumber,
+        hasNextPage,
+        hasPrevPage,
+        nextPage: hasNextPage ? pageNumber + 1 : null,
+        prevPage: hasPrevPage ? pageNumber - 1 : null
+      },
       filter: {
         startDate: startDate || null,
         endDate: endDate || null,
         type: type || null,
-        category: category || null,
-        total: transactions.length
+        category: category || null
       }
     });
   } catch (error) {

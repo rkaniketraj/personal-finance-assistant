@@ -176,8 +176,13 @@ const Analysis = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Loader size="lg" text="Loading analytics..." />
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-slate-200 border-t-slate-900 mx-auto"></div>
+              <p className="mt-4 text-slate-600">Loading analytics...</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -187,13 +192,15 @@ const Analysis = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-12">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Financial Analysis</h1>
-              <p className="text-gray-600">
+              <h1 className="text-3xl md:text-4xl font-light text-slate-900 mb-3 tracking-tight">
+                Financial Analysis
+              </h1>
+              <p className="text-slate-600 text-lg leading-relaxed">
                 Comprehensive insights into your spending patterns and financial health
               </p>
             </div>
@@ -204,10 +211,10 @@ const Analysis = () => {
                 <button
                   key={p}
                   onClick={() => handlePeriodChange(p)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     period === p
-                      ? 'bg-red-600 text-white'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      ? 'bg-slate-900 text-white shadow-lg'
+                      : 'bg-white/60 backdrop-blur-sm text-slate-700 border border-slate-200 hover:bg-white hover:shadow-sm'
                   }`}
                 >
                   {getPeriodLabel(p)}
@@ -219,7 +226,7 @@ const Analysis = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded">
+          <div className="mb-8 bg-red-50/50 backdrop-blur-sm border border-red-200 text-red-700 px-6 py-4 rounded-2xl">
             {error}
           </div>
         )}
@@ -228,75 +235,47 @@ const Analysis = () => {
           <div className="space-y-8">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                      <span className="text-red-600 text-lg">💸</span>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {formatCurrency(analytics.totalExpenses || 0)}
-                    </p>
-                  </div>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 p-8">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-slate-600 uppercase tracking-wider">Total Expenses</p>
                 </div>
+                <p className="text-3xl font-light text-slate-900 tracking-tight">
+                  {formatCurrency(analytics.totalExpenses || 0)}
+                </p>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="text-green-600 text-lg">💰</span>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Income</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {formatCurrency(analytics.totalIncome || 0)}
-                    </p>
-                  </div>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 p-8">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-slate-600 uppercase tracking-wider">Total Income</p>
                 </div>
+                <p className="text-3xl font-light text-emerald-600 tracking-tight">
+                  {formatCurrency(analytics.totalIncome || 0)}
+                </p>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 text-lg">📊</span>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Net Savings</p>
-                    <p className={`text-2xl font-bold ${
-                      (analytics.totalIncome - analytics.totalExpenses) >= 0 
-                        ? 'text-green-600' 
-                        : 'text-red-600'
-                    }`}>
-                      {formatCurrency((analytics.totalIncome || 0) - (analytics.totalExpenses || 0))}
-                    </p>
-                  </div>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 p-8">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-slate-600 uppercase tracking-wider">Net Savings</p>
                 </div>
+                <p className={`text-3xl font-light tracking-tight ${
+                  (analytics.totalIncome - analytics.totalExpenses) >= 0 
+                    ? 'text-emerald-600' 
+                    : 'text-red-500'
+                }`}>
+                  {formatCurrency((analytics.totalIncome || 0) - (analytics.totalExpenses || 0))}
+                </p>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <span className="text-purple-600 text-lg">📈</span>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Savings Rate</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analytics.totalIncome > 0 
-                        ? formatPercentage((analytics.totalIncome - analytics.totalExpenses) / analytics.totalIncome)
-                        : '0%'
-                      }
-                    </p>
-                  </div>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 p-8">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-slate-600 uppercase tracking-wider">Savings Rate</p>
                 </div>
+                <p className="text-3xl font-light text-slate-900 tracking-tight">
+                  {analytics.totalIncome > 0 
+                    ? formatPercentage((analytics.totalIncome - analytics.totalExpenses) / analytics.totalIncome)
+                    : '0%'
+                  }
+                </p>
               </div>
             </div>
 
@@ -305,21 +284,21 @@ const Analysis = () => {
               <SpendingHeatmap data={analytics.heatmapData || []} />
               
               {/* Category Breakdown */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Expense by Category</h3>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Expense by Category</h3>
                 {analytics.categoryBreakdown && analytics.categoryBreakdown.length > 0 ? (
                   <div className="space-y-4">
                     {analytics.categoryBreakdown.map((category, index) => (
                       <div key={category.name} className="flex items-center justify-between">
                         <div className="flex items-center">
                           <div className={`w-4 h-4 rounded-full ${getCategoryColor(index)} mr-3`}></div>
-                          <span className="text-sm font-medium text-gray-700">{category.name}</span>
+                          <span className="text-sm font-semibold text-slate-900">{category.name}</span>
                         </div>
                         <div className="flex items-center space-x-4">
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-slate-600">
                             {formatPercentage(category.percentage)}
                           </span>
-                          <span className="text-sm font-semibold text-gray-900">
+                          <span className="text-sm font-semibold text-slate-900">
                             {formatCurrency(category.amount)}
                           </span>
                         </div>
@@ -327,7 +306,7 @@ const Analysis = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No expense data available</p>
+                  <p className="text-slate-500 text-center py-8">No expense data available</p>
                 )}
               </div>
             </div>
@@ -335,8 +314,8 @@ const Analysis = () => {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Monthly Trend Chart */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Trend</h3>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Monthly Trend</h3>
                 {analytics.monthlyTrend && analytics.monthlyTrend.length > 0 ? (
                   <div style={{ height: '300px' }}>
                     <Line
@@ -388,13 +367,13 @@ const Analysis = () => {
                     />
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No trend data available</p>
+                  <p className="text-slate-500 text-center py-8">No trend data available</p>
                 )}
               </div>
 
               {/* Category Pie Chart */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Expense Distribution</h3>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Expense Distribution</h3>
                 {analytics.categoryBreakdown && analytics.categoryBreakdown.length > 0 ? (
                   <div style={{ height: '300px' }}>
                     <Doughnut
@@ -439,7 +418,7 @@ const Analysis = () => {
                     />
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No expense data available</p>
+                  <p className="text-slate-500 text-center py-8">No expense data available</p>
                 )}
               </div>
             </div>
@@ -447,21 +426,21 @@ const Analysis = () => {
             {/* Weekly Pattern and Top Categories Bar Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Weekly Spending Pattern */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Spending Pattern</h3>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Weekly Spending Pattern</h3>
                 {analytics.weeklyPattern && analytics.weeklyPattern.length > 0 ? (
                   <div className="space-y-4">
                     {analytics.weeklyPattern.map((day) => (
                       <div key={day.day} className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">{day.day}</span>
+                        <span className="text-sm font-semibold text-slate-900">{day.day}</span>
                         <div className="flex items-center space-x-4">
-                          <div className="flex-1 bg-gray-200 rounded-full h-2 mr-4 w-32">
+                          <div className="flex-1 bg-slate-200 rounded-full h-2 mr-4 w-32">
                             <div 
-                              className="bg-red-500 h-2 rounded-full" 
+                              className="bg-slate-900 h-2 rounded-full" 
                               style={{ width: `${Math.min(100, (day.amount / (analytics.maxDailySpending || 1)) * 100)}%` }}
                             ></div>
                           </div>
-                          <span className="text-sm font-semibold text-gray-900 min-w-[80px]">
+                          <span className="text-sm font-semibold text-slate-900 min-w-[80px]">
                             {formatCurrency(day.amount)}
                           </span>
                         </div>
@@ -469,13 +448,13 @@ const Analysis = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No weekly pattern data available</p>
+                  <p className="text-slate-500 text-center py-8">No weekly pattern data available</p>
                 )}
               </div>
 
               {/* Top Spending Categories Bar Chart */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Spending Categories</h3>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Top Spending Categories</h3>
                 {analytics.topCategories && analytics.topCategories.length > 0 ? (
                   <div style={{ height: '300px' }}>
                     <Bar
@@ -528,7 +507,7 @@ const Analysis = () => {
                     />
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-4">No category data available</p>
+                  <p className="text-slate-500 text-center py-4">No category data available</p>
                 )}
               </div>
             </div>
@@ -536,24 +515,24 @@ const Analysis = () => {
             {/* Financial Health Summary */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Spending Patterns */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Spending Patterns</h3>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Spending Patterns</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Average Daily Spending</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Average Daily Spending</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {formatCurrency(analytics.averageDailySpending || 0)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Largest Transaction</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Largest Transaction</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {formatCurrency(analytics.largestTransaction || 0)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Total Transactions</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Total Transactions</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {analytics.transactionCount || 0}
                     </span>
                   </div>
@@ -561,26 +540,26 @@ const Analysis = () => {
               </div>
 
               {/* Financial Health */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Health</h3>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Financial Health</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Expense to Income Ratio</span>
+                    <span className="text-sm text-slate-600">Expense to Income Ratio</span>
                     <span className={`text-sm font-semibold ${
-                      analytics.expenseToIncomeRatio > 0.8 ? 'text-red-600' : 'text-green-600'
+                      analytics.expenseToIncomeRatio > 0.8 ? 'text-red-500' : 'text-emerald-600'
                     }`}>
                       {formatPercentage(analytics.expenseToIncomeRatio || 0)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Days Analyzed</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Days Analyzed</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {analytics.daysAnalyzed || 0}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Data Completeness</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Data Completeness</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {formatPercentage(analytics.dataCompleteness || 0)}
                     </span>
                   </div>
@@ -588,24 +567,24 @@ const Analysis = () => {
               </div>
 
               {/* Quick Stats */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Quick Stats</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Period</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Period</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {getPeriodLabel(period)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Categories Tracked</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Categories Tracked</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {analytics.categoryBreakdown?.length || 0}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Last Updated</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Last Updated</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {analytics.lastUpdated ? new Date(analytics.lastUpdated).toLocaleDateString() : 'N/A'}
                     </span>
                   </div>
@@ -615,15 +594,15 @@ const Analysis = () => {
 
             {/* Recommendations */}
             {analytics.recommendations && analytics.recommendations.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">💡 Financial Recommendations</h3>
-                <div className="space-y-3">
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-8">
+                <h3 className="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Financial Recommendations</h3>
+                <div className="space-y-4">
                   {analytics.recommendations.map((recommendation, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 text-xs font-bold">{index + 1}</span>
+                    <div key={index} className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center">
+                        <span className="text-slate-600 text-xs font-bold">{index + 1}</span>
                       </div>
-                      <p className="text-sm text-gray-700">{recommendation}</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{recommendation}</p>
                     </div>
                   ))}
                 </div>
@@ -633,12 +612,9 @@ const Analysis = () => {
         )}
 
         {!analytics && !loading && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">📊</span>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Analytics Available</h3>
-            <p className="text-gray-600 mb-4">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-sm p-12 text-center">
+            <h3 className="text-xl font-semibold text-slate-900 mb-3 tracking-tight">No Analytics Available</h3>
+            <p className="text-slate-600 mb-6 leading-relaxed">
               Start adding transactions to see detailed financial analysis and insights.
             </p>
           </div>

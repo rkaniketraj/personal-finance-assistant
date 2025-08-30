@@ -1,23 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/common/Header';
 import { transactionAPI } from '../services/api';
 import Modal from '../components/common/Modal';
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Chip,
-  IconButton,
-  Typography,
-  Box
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 const Transactions = () => {
   const [searchParams] = useSearchParams();
@@ -39,59 +24,65 @@ const Transactions = () => {
     description: '',
     date: new Date().toISOString().split('T')[0]
   });
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const columns = [
-    { id: 'date', label: 'Date', minWidth: 100 },
-    { id: 'description', label: 'Description', minWidth: 170 },
-    { id: 'category', label: 'Category', minWidth: 100 },
-    { id: 'type', label: 'Type', minWidth: 80, align: 'center' },
-    { id: 'amount', label: 'Amount', minWidth: 100, align: 'right' },
-    { id: 'actions', label: 'Actions', minWidth: 80, align: 'center' },
-  ];
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [pagination, setPagination] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const categories = {
     expense: ['Food & Dining', 'Transportation', 'Shopping', 'Entertainment', 'Others'],
     income: ['Salary', 'Business', 'Investment', 'Others']
   };
 
-  const fetchTransactions = useCallback(async (filterParams = {}) => {
-    try {
-      setError(null);
-      console.log('Fetching transactions with params:', { ...filters, ...filterParams });
-      const params = { ...filters, ...filterParams };
-      // Remove empty values
-      const cleanParams = Object.fromEntries(
-        Object.entries(params).filter(([, value]) => value !== '' && value !== null)
-      );
-      
-      console.log('Clean params:', cleanParams);
-      const response = await transactionAPI.getAll(cleanParams);
-      console.log('API response:', response);
-      const transactionsData = response.transactions || [];
-      console.log('Transactions data:', transactionsData);
-      // Sort by date in descending order (most recent first)
-      const sortedTransactions = transactionsData.sort((a, b) => new Date(b.date) - new Date(a.date));
-      setTransactions(sortedTransactions);
-    } catch (error) {
-      console.error('Error fetching transactions:', error);
-      setError(error.message || 'Failed to fetch transactions');
-      // Set an empty array so the component can render
-      setTransactions([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
-
     useEffect(() => {
-    fetchTransactions();
+    // Initial load
+    const loadTransactions = async () => {
+      try {
+        setError(null);
+        setLoading(true);
+        const params = { 
+          ...filters,
+          page: currentPage,
+          limit: itemsPerPage
+        };
+        
+        // Remove empty values
+        const cleanParams = Object.fromEntries(
+          Object.entries(params).filter(([, value]) => value !== '' && value !== null)
+        );
+        
+        const response = await transactionAPI.getAll(cleanParams);
+        const transactionsData = response.transactions || [];
+        const paginationData = response.pagination || {};
+        
+        setTransactions(transactionsData);
+        setPagination(paginationData);
+        setTotalPages(paginationData.totalPages || 1);
+        setTotalTransactions(paginationData.totalTransactions || 0);
+        
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+        setError(error.message || 'Failed to fetch transactions');
+        setTransactions([]);
+        setPagination(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTransactions();
     
     // Check if we should open add modal
     if (searchParams.get('action') === 'add') {
       setShowAddModal(true);
     }
-  }, [searchParams, fetchTransactions]);
+  }, [searchParams, filters, currentPage, itemsPerPage, refreshTrigger]);
+
+  // Remove the separate filter effect since it's now handled above
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({
@@ -102,7 +93,8 @@ const Transactions = () => {
 
   const applyFilters = () => {
     setLoading(true);
-    fetchTransactions();
+    setCurrentPage(1); // Reset to first page when applying filters
+    // The useEffect will handle the API call when currentPage changes
   };
 
   const clearFilters = () => {
@@ -112,13 +104,9 @@ const Transactions = () => {
       type: '',
       category: ''
     });
+    setCurrentPage(1);
     setLoading(true);
-    fetchTransactions({
-      startDate: '',
-      endDate: '',
-      type: '',
-      category: ''
-    });
+    // The useEffect will handle the API call when filters change
   };
 
   const handleSubmit = async (e) => {
@@ -133,7 +121,8 @@ const Transactions = () => {
         description: '',
         date: new Date().toISOString().split('T')[0]
       });
-      fetchTransactions();
+      // Trigger a refresh by updating a state that's in the useEffect dependency array
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error creating transaction:', error);
     }
@@ -143,7 +132,8 @@ const Transactions = () => {
     if (confirm('Are you sure you want to delete this transaction?')) {
       try {
         await transactionAPI.delete(id);
-        fetchTransactions();
+        // Trigger a refresh by updating a state that's in the useEffect dependency array
+        setRefreshTrigger(prev => prev + 1);
       } catch (error) {
         console.error('Error deleting transaction:', error);
       }
@@ -157,24 +147,19 @@ const Transactions = () => {
     }).format(amount);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  // Pagination handlers
+  const handlePageChange = (newPage) => {
+    setLoading(true);
+    setCurrentPage(newPage);
+    // The useEffect will handle the API call when currentPage changes
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
+  const handleItemsPerPageChange = (newLimit) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1);
+    setLoading(true);
+    // The useEffect will handle the API call when itemsPerPage changes
   };
-
-  const createData = (transaction) => ({
-    id: transaction._id,
-    date: new Date(transaction.date).toLocaleDateString(),
-    description: transaction.description || 'No description',
-    category: transaction.category,
-    type: transaction.type,
-    amount: transaction.amount,
-    transaction: transaction
-  });
 
   if (loading) {
     return (
@@ -276,7 +261,10 @@ const Transactions = () => {
             </div>
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-600">
-                {transactions.length} transaction{transactions.length !== 1 ? 's' : ''} found
+                {pagination ? 
+                  `Showing ${((currentPage - 1) * itemsPerPage) + 1} to ${Math.min(currentPage * itemsPerPage, totalTransactions)} of ${totalTransactions} transaction${totalTransactions !== 1 ? 's' : ''}` 
+                  : `${transactions.length} transaction${transactions.length !== 1 ? 's' : ''} found`
+                }
               </div>
               <div className="flex space-x-3">
                 <button
@@ -303,90 +291,166 @@ const Transactions = () => {
           </div>
         )}
 
-        <Paper sx={{ width: '100%', overflow: 'hidden', borderRadius: 2, boxShadow: 1 }}>
+        {/* Transactions Table */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           {transactions.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 12 }}>
-              <Typography variant="h1" sx={{ fontSize: '4rem', mb: 2 }}>📝</Typography>
-              <Typography variant="h6" sx={{ mb: 2 }}>No transactions yet</Typography>
+            <div className="text-center py-20">
+              <div className="text-6xl mb-4">📝</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No transactions yet</h3>
               <button
                 onClick={() => setShowAddModal(true)}
                 className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
               >
                 Add Your First Transaction
               </button>
-            </Box>
+            </div>
           ) : (
             <>
-              <TableContainer sx={{ maxHeight: 500 }}>
-                <Table stickyHeader aria-label="transactions table">
-                  <TableHead>
-                    <TableRow>
-                      {columns.map((column) => (
-                        <TableCell
-                          key={column.id}
-                          align={column.align}
-                          style={{ minWidth: column.minWidth, fontWeight: 'bold' }}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Description
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Category
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {transactions.map((transaction) => (
+                      <tr key={transaction._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-900">
+                          {new Date(transaction.date).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-900">
+                          {transaction.description || 'No description'}
+                        </td>
+                        <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-900">
+                          {transaction.category}
+                        </td>
+                        <td className="px-6 py-2 whitespace-nowrap text-center">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            transaction.type === 'income' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {transaction.type}
+                          </span>
+                        </td>
+                        <td className={`px-6 py-2 whitespace-nowrap text-right text-sm font-bold ${
+                          transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
+                        </td>
+                        <td className="px-6 py-2 whitespace-nowrap text-center">
+                          <button
+                            onClick={() => handleDelete(transaction._id)}
+                            className="text-red-600 hover:text-red-800 p-1"
+                            title="Delete transaction"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Custom Pagination */}
+              {pagination && (
+                <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <p className="text-sm text-gray-700">
+                        Show 
+                        <select 
+                          value={itemsPerPage}
+                          onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                          className="mx-2 border border-gray-300 rounded px-2 py-1"
                         >
-                          {column.label}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {transactions
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((transaction) => {
-                        const row = createData(transaction);
-                        return (
-                          <TableRow hover role="checkbox" tabIndex={-1} key={row.id} sx={{ height: '40px' }}>
-                            <TableCell sx={{ padding: '4px 16px' }}>{row.date}</TableCell>
-                            <TableCell sx={{ padding: '4px 16px' }}>{row.description}</TableCell>
-                            <TableCell sx={{ padding: '4px 16px' }}>{row.category}</TableCell>
-                            <TableCell align="center" sx={{ padding: '4px 16px' }}>
-                              <Chip
-                                label={row.type}
-                                color={row.type === 'income' ? 'success' : 'error'}
-                                size="small"
-                                variant="outlined"
-                              />
-                            </TableCell>
-                            <TableCell 
-                              align="right" 
-                              sx={{ 
-                                color: row.type === 'income' ? 'success.main' : 'error.main',
-                                fontWeight: 'bold',
-                                padding: '4px 16px'
-                              }}
-                            >
-                              {row.type === 'income' ? '+' : '-'} {formatCurrency(row.amount)}
-                            </TableCell>
-                            <TableCell align="center" sx={{ padding: '4px 16px' }}>
-                              <IconButton
-                                onClick={() => handleDelete(row.id)}
-                                color="error"
-                                size="small"
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25, 50]}
-                component="div"
-                count={transactions.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
+                        items per page
+                      </p>
+                    </div>
+                    
+                    {totalPages > 1 && (
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handlePageChange(1)}
+                          disabled={currentPage === 1}
+                          className={`px-3 py-1 rounded ${currentPage === 1 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          First
+                        </button>
+                        
+                        <button
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={!pagination.hasPrevPage}
+                          className={`px-3 py-1 rounded ${!pagination.hasPrevPage 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          Previous
+                        </button>
+
+                        <span className="px-3 py-1 text-sm text-gray-700">
+                          Page {currentPage} of {totalPages}
+                        </span>
+
+                        <button
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={!pagination.hasNextPage}
+                          className={`px-3 py-1 rounded ${!pagination.hasNextPage 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          Next
+                        </button>
+                        
+                        <button
+                          onClick={() => handlePageChange(totalPages)}
+                          disabled={currentPage === totalPages}
+                          className={`px-3 py-1 rounded ${currentPage === totalPages 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          Last
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           )}
-        </Paper>
+        </div>
       </div>
 
       {/* Add Transaction Modal */}
