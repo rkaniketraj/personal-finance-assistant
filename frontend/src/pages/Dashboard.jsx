@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/common/Header';
-import AIInsights from '../components/AIInsights';
 import { transactionAPI } from '../services/api';
 
 const Dashboard = () => {
@@ -19,9 +18,9 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [transactionsResponse, analyticsResponse] = await Promise.all([
+      const [transactionsResponse, summaryResponse] = await Promise.all([
         transactionAPI.getAll({ limit: 5 }),
-        transactionAPI.getAnalytics()
+        transactionAPI.getSummary()
       ]);
       
       const transactionsData = transactionsResponse.transactions || [];
@@ -29,7 +28,7 @@ const Dashboard = () => {
       const sortedTransactions = transactionsData.sort((a, b) => new Date(b.date) - new Date(a.date));
       setRecentTransactions(sortedTransactions);
       
-      const analytics = analyticsResponse.summary;
+      const analytics = summaryResponse.summary;
       if (analytics) {
         setSummary({
           totalIncome: analytics.totalIncome || 0,
@@ -181,12 +180,6 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-        </div>
-
-        {/* AI Insights */}
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">AI-Powered Insights</h2>
-          <AIInsights />
         </div>
       </div>
     </div>

@@ -62,6 +62,10 @@ export const transactionAPI = {
   delete: (id) => api.delete(`/transactions/${id}`),
   getAnalytics: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
+    return api.get(`/transactions/analytics${queryString ? `?${queryString}` : ''}`);
+  },
+  getSummary: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
     return api.get(`/transactions/summary${queryString ? `?${queryString}` : ''}`);
   },
 };

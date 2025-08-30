@@ -5,7 +5,8 @@ const {
   getTransaction,
   updateTransaction,
   deleteTransaction,
-  getSummary
+  getSummary,
+  getAnalytics
 } = require('../controllers/transactionController');
 const { auth } = require('../middleware/auth');
 
@@ -18,6 +19,7 @@ router.use(auth);
 router.post('/', createTransaction);
 router.get('/', getTransactions);
 router.get('/summary', getSummary);
+router.get('/analytics', getAnalytics);
 router.get('/:id', getTransaction);
 router.put('/:id', updateTransaction);
 router.delete('/:id', deleteTransaction);

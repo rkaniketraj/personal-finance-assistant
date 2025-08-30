@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -19,6 +22,9 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -32,22 +38,22 @@ const Analysis = () => {
   const [period, setPeriod] = useState(searchParams.get('period') || '30d');
 
   useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        
+        const response = await transactionAPI.getAnalytics({ period });
+        setAnalytics(response.data);
+      } catch (error) {
+        setError(error.message || 'Failed to fetch analytics');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchAnalytics();
   }, [period]);
-
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      const response = await transactionAPI.getAnalytics({ period });
-      setAnalytics(response.data);
-    } catch (error) {
-      setError(error.message || 'Failed to fetch analytics');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePeriodChange = (newPeriod) => {
     setPeriod(newPeriod);
@@ -294,7 +300,7 @@ const Analysis = () => {
               </div>
             </div>
 
-            {/* Heatmap Section */}
+            {/* Heatmap and Category Breakdown */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <SpendingHeatmap data={analytics.heatmapData || []} />
               
@@ -328,30 +334,118 @@ const Analysis = () => {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Monthly Trend */}
+              {/* Monthly Trend Chart */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Trend</h3>
                 {analytics.monthlyTrend && analytics.monthlyTrend.length > 0 ? (
-                  <div className="space-y-4">
-                    {analytics.monthlyTrend.map((month) => (
-                      <div key={month.month} className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">{month.month}</span>
-                        <div className="flex items-center space-x-4">
-                          <span className="text-sm text-red-600">
-                            -{formatCurrency(month.expenses)}
-                          </span>
-                          <span className="text-sm text-green-600">
-                            +{formatCurrency(month.income)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                  <div style={{ height: '300px' }}>
+                    <Line
+                      data={{
+                        labels: analytics.monthlyTrend.map(month => month.month),
+                        datasets: [
+                          {
+                            label: 'Income',
+                            data: analytics.monthlyTrend.map(month => month.income),
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderColor: 'rgb(16, 185, 129)',
+                            borderWidth: 2,
+                            fill: false,
+                          },
+                          {
+                            label: 'Expenses',
+                            data: analytics.monthlyTrend.map(month => month.expenses),
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderColor: 'rgb(239, 68, 68)',
+                            borderWidth: 2,
+                            fill: false,
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'top',
+                          },
+                          tooltip: {
+                            callbacks: {
+                              label: (context) => {
+                                return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
+                              }
+                            }
+                          }
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: {
+                              callback: (value) => formatCurrency(value)
+                            }
+                          }
+                        }
+                      }}
+                    />
                   </div>
                 ) : (
                   <p className="text-gray-500 text-center py-8">No trend data available</p>
                 )}
               </div>
 
+              {/* Category Pie Chart */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Expense Distribution</h3>
+                {analytics.categoryBreakdown && analytics.categoryBreakdown.length > 0 ? (
+                  <div style={{ height: '300px' }}>
+                    <Doughnut
+                      data={{
+                        labels: analytics.categoryBreakdown.slice(0, 6).map(cat => cat.name),
+                        datasets: [{
+                          data: analytics.categoryBreakdown.slice(0, 6).map(cat => cat.amount),
+                          backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',   // red-500
+                            'rgba(249, 115, 22, 0.8)',  // orange-500
+                            'rgba(245, 158, 11, 0.8)',  // amber-500
+                            'rgba(16, 185, 129, 0.8)',  // green-500
+                            'rgba(59, 130, 246, 0.8)',  // blue-500
+                            'rgba(139, 92, 246, 0.8)',  // purple-500
+                          ],
+                          borderWidth: 2,
+                          borderColor: '#fff'
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'bottom',
+                            labels: {
+                              padding: 20,
+                              usePointStyle: true
+                            }
+                          },
+                          tooltip: {
+                            callbacks: {
+                              label: (context) => {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                return `${context.label}: ${formatCurrency(context.raw)} (${percentage}%)`;
+                              }
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">No expense data available</p>
+                )}
+              </div>
+            </div>
+
+            {/* Weekly Pattern and Top Categories Bar Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Weekly Spending Pattern */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Spending Pattern</h3>
@@ -361,13 +455,13 @@ const Analysis = () => {
                       <div key={day.day} className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">{day.day}</span>
                         <div className="flex items-center space-x-4">
-                          <div className="flex-1 bg-gray-200 rounded-full h-2 mr-4">
+                          <div className="flex-1 bg-gray-200 rounded-full h-2 mr-4 w-32">
                             <div 
                               className="bg-red-500 h-2 rounded-full" 
                               style={{ width: `${Math.min(100, (day.amount / (analytics.maxDailySpending || 1)) * 100)}%` }}
                             ></div>
                           </div>
-                          <span className="text-sm font-semibold text-gray-900">
+                          <span className="text-sm font-semibold text-gray-900 min-w-[80px]">
                             {formatCurrency(day.amount)}
                           </span>
                         </div>
@@ -378,15 +472,12 @@ const Analysis = () => {
                   <p className="text-gray-500 text-center py-8">No weekly pattern data available</p>
                 )}
               </div>
-            </div>
 
-            {/* Detailed Insights */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Top Spending Categories */}
+              {/* Top Spending Categories Bar Chart */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Spending Categories</h3>
                 {analytics.topCategories && analytics.topCategories.length > 0 ? (
-                  <div>
+                  <div style={{ height: '300px' }}>
                     <Bar
                       data={{
                         labels: analytics.topCategories.slice(0, 5).map(cat => cat.name),
@@ -434,14 +525,16 @@ const Analysis = () => {
                           }
                         }
                       }}
-                      style={{ height: '300px' }}
                     />
                   </div>
                 ) : (
                   <p className="text-gray-500 text-center py-4">No category data available</p>
                 )}
               </div>
+            </div>
 
+            {/* Financial Health Summary */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Spending Patterns */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Spending Patterns</h3>
@@ -461,7 +554,7 @@ const Analysis = () => {
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Total Transactions</span>
                     <span className="text-sm font-semibold text-gray-900">
-                      {analytics.totalTransactions || 0}
+                      {analytics.transactionCount || 0}
                     </span>
                   </div>
                 </div>
@@ -489,6 +582,31 @@ const Analysis = () => {
                     <span className="text-sm text-gray-600">Data Completeness</span>
                     <span className="text-sm font-semibold text-gray-900">
                       {formatPercentage(analytics.dataCompleteness || 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Period</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      {getPeriodLabel(period)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Categories Tracked</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      {analytics.categoryBreakdown?.length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Last Updated</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      {analytics.lastUpdated ? new Date(analytics.lastUpdated).toLocaleDateString() : 'N/A'}
                     </span>
                   </div>
                 </div>
@@ -530,4 +648,4 @@ const Analysis = () => {
   );
 };
 
-export default Analysis; 
+export default Analysis;
