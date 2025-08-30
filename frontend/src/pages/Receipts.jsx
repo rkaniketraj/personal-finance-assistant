@@ -379,7 +379,7 @@ const Receipts = () => {
 
                  {/* Error Message */}
          {error && (
-           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+           <div className="mb-6 bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded relative" role="alert">
              <div className="flex items-start">
                <div className="flex-shrink-0">
                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -421,7 +421,7 @@ const Receipts = () => {
           
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center ${
-              dragActive ? 'border-red-400 bg-red-50' : 'border-gray-300'
+              dragActive ? 'border-gray-400 bg-gray-50' : 'border-gray-300'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -448,7 +448,7 @@ const Receipts = () => {
                 />
                 <label
                   htmlFor="file-upload"
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-medium cursor-pointer"
+                  className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 font-medium cursor-pointer"
                 >
                   Choose File
                 </label>
@@ -481,7 +481,7 @@ const Receipts = () => {
                   <button
                     onClick={handleUpload}
                     disabled={uploading}
-                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-medium disabled:opacity-50"
+                    className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 font-medium disabled:opacity-50"
                   >
                     {uploading ? 'Uploading...' : 'Upload Receipt'}
                   </button>
@@ -704,7 +704,7 @@ const Receipts = () => {
                 <div className="mt-4">
                   <button
                     onClick={() => handleCreateTransaction(extractedData)}
-                    className="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-medium flex items-center justify-center space-x-2"
+                    className="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 font-medium flex items-center justify-center space-x-2"
                   >
                     <span>💳</span>
                     <span>Create Transaction from Receipt</span>

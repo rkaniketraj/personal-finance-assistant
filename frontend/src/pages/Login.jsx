@@ -59,7 +59,7 @@ const Login = ({ setIsAuth }) => {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-red-500 rounded flex items-center justify-center">
+          <div className="w-12 h-12 bg-gray-900 rounded flex items-center justify-center">
             <span className="text-white font-bold text-xl">FA</span>
           </div>
         </div>
@@ -68,7 +68,7 @@ const Login = ({ setIsAuth }) => {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
-          <Link to="/register" className="font-medium text-red-600 hover:text-red-500">
+          <Link to="/register" className="font-medium text-gray-600 hover:text-gray-900">
             create a new account
           </Link>
         </p>
@@ -100,7 +100,7 @@ const Login = ({ setIsAuth }) => {
           </div>
 
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="mb-4 bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded">
               {error}
             </div>
           )}
@@ -117,7 +117,7 @@ const Login = ({ setIsAuth }) => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-gray-500 focus:border-gray-500"
                 placeholder="Enter your email"
               />
             </div>
@@ -133,7 +133,7 @@ const Login = ({ setIsAuth }) => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-gray-500 focus:border-gray-500"
                 placeholder="Enter your password"
               />
             </div>
@@ -141,7 +141,7 @@ const Login = ({ setIsAuth }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>

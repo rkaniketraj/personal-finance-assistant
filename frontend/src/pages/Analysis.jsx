@@ -213,7 +213,7 @@ const Analysis = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div className="mb-6 bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded">
             {error}
           </div>
         )}

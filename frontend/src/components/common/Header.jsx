@@ -14,7 +14,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4">
-            <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
+            <div className="w-8 h-8 bg-gray-900 rounded flex items-center justify-center">
               <span className="text-white font-bold text-lg">F</span>
             </div>
             <span className="text-xl font-bold text-gray-900">FinanceTracker</span>

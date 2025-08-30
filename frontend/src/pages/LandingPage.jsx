@@ -10,7 +10,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
+              <div className="w-8 h-8 bg-gray-900 rounded flex items-center justify-center">
                 <span className="text-white font-bold text-lg">FA</span>
               </div>
               <span className="text-xl font-bold text-gray-900">FinanceAssistant</span>
@@ -32,7 +32,7 @@ const LandingPage = () => {
               </Link>
               <Link 
                 to="/register" 
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 font-medium"
+                className="bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 font-medium"
               >
                 Get Started
               </Link>
@@ -56,13 +56,13 @@ const LandingPage = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
               <Link 
                 to="/register" 
-                className="bg-red-500 text-white px-8 py-3 rounded-md hover:bg-red-600 font-medium text-lg"
+                className="bg-gray-900 text-white px-8 py-3 rounded-md hover:bg-gray-800 font-medium text-lg"
               >
                 Get Started
               </Link>
               <Link 
                 to="/login" 
-                className="flex items-center space-x-2 text-red-500 hover:text-red-600 font-medium text-lg"
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 font-medium text-lg"
               >
                 <span>▶</span>
                 <span>Demo Login</span>
@@ -72,7 +72,7 @@ const LandingPage = () => {
             {/* Finance-themed Graphics */}
             <div id='home' className="relative mt-16">
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-96 h-96 bg-gradient-to-br from-red-50 to-red-100 rounded-full opacity-20"></div>
+                <div className="w-96 h-96 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full opacity-20"></div>
               </div>
               <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
                 <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex flex-col items-center text-center">
@@ -111,7 +111,7 @@ const LandingPage = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center mb-6">
+                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                   <span className="text-3xl">💰</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-4">Income & Expense Tracking</h3>
@@ -162,20 +162,20 @@ const LandingPage = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-red-500">
+        <section className="py-20 bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Ready to Take Control?</h2>
-            <p className="text-xl text-red-100 mb-8">Start managing your finances today with our powerful tools</p>
+            <p className="text-xl text-gray-300 mb-8">Start managing your finances today with our powerful tools</p>
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link 
                 to="/register" 
-                className="bg-white text-red-500 px-8 py-3 rounded-md hover:bg-gray-100 font-medium text-lg"
+                className="bg-white text-gray-900 px-8 py-3 rounded-md hover:bg-gray-100 font-medium text-lg"
               >
                 Get Started Free
               </Link>
               <Link 
                 to="/login" 
-                className="text-white border border-white px-8 py-3 rounded-md hover:bg-white hover:text-red-500 font-medium text-lg"
+                className="text-white border border-white px-8 py-3 rounded-md hover:bg-white hover:text-gray-900 font-medium text-lg"
               >
                 Sign In
               </Link>
@@ -185,20 +185,17 @@ const LandingPage = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-800 text-white py-6 border-t border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-lg">FA</span>
+          <div className="flex flex-col sm:flex-row items-center justify-between">
+            <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+              <div className="w-6 h-6 bg-gray-600 rounded flex items-center justify-center">
+                <span className="text-white font-bold text-sm">FA</span>
               </div>
-              <span className="text-xl font-bold">FinanceAssistant</span>
+              <span className="text-lg font-bold">FinanceAssistant</span>
             </div>
-            <p className="text-gray-400 mb-4">
-              Personal Finance Assistant
-            </p>
-            <p className="text-gray-500 text-sm">
-              Built with React, Node.js, and MongoDB
+            <p className="text-gray-400 text-sm">
+              © 2025 Personal Finance Assistant
             </p>
           </div>
         </div>

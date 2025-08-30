@@ -34,7 +34,7 @@ const AIInsights = () => {
   if (loading) {
     return (
       <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600 mx-auto"></div>
         <p className="mt-2 text-gray-600">Loading AI insights...</p>
       </div>
     );
@@ -42,11 +42,11 @@ const AIInsights = () => {
   
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div className="text-red-800">Error: {error}</div>
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+        <div className="text-orange-800">Error: {error}</div>
         <button 
           onClick={fetchAIData} 
-          className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+          className="mt-2 px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
         >
           Retry
         </button>
@@ -62,7 +62,7 @@ const AIInsights = () => {
           <h2 className="text-xl font-semibold">AI Financial Insights</h2>
           <button 
             onClick={fetchAIData} 
-            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+            className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm"
           >
             Refresh
           </button>
@@ -84,7 +84,7 @@ const AIInsights = () => {
           <h2 className="text-xl font-semibold">Personalized Financial Advice</h2>
           <button 
             onClick={fetchAIData} 
-            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+            className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm"
           >
             Refresh
           </button>

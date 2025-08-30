@@ -317,7 +317,7 @@ const Transactions = () => {
             </div>
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-medium"
+              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 font-medium"
             >
               + Add Transaction
             </button>
@@ -442,7 +442,7 @@ const Transactions = () => {
               {!Object.values(filters).some(v => v) && (
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-medium"
+                  className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 font-medium"
                 >
                   Add Transaction
                 </button>
@@ -639,7 +639,7 @@ const Transactions = () => {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+              className="px-4 py-2 bg-gray-600 text-white rounded-md text-sm font-medium hover:bg-gray-700 disabled:opacity-50"
             >
               {loading ? 'Saving...' : (showEditModal ? 'Update' : 'Save')}
             </button>

@@ -100,7 +100,7 @@ const Transactions = () => {
           <h1 className="text-3xl font-bold text-gray-900">Transactions</h1>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
           >
             Add Transaction
           </button>
@@ -113,7 +113,7 @@ const Transactions = () => {
               <h3 className="text-lg font-medium mb-2">No transactions yet</h3>
               <button
                 onClick={() => setShowAddModal(true)}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
               >
                 Add Your First Transaction
               </button>
@@ -260,7 +260,7 @@ const Transactions = () => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700"
             >
               Add Transaction
             </button>

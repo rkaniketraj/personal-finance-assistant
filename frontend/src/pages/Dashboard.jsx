@@ -55,7 +55,7 @@ const Dashboard = () => {
         <Header />
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading dashboard...</p>
           </div>
         </div>
@@ -113,7 +113,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Expenses</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-2xl font-bold text-gray-600">
                   {formatCurrency(summary.totalExpenses)}
                 </p>
               </div>
@@ -124,7 +124,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Net Balance</p>
-                <p className={`text-2xl font-bold ${summary.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`text-2xl font-bold ${summary.balance >= 0 ? 'text-green-600' : 'text-gray-600'}`}>
                   {formatCurrency(summary.balance)}
                 </p>
               </div>
@@ -138,7 +138,7 @@ const Dashboard = () => {
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Recent Transactions</h2>
-              <Link to="/transactions" className="text-red-600 hover:text-red-700 font-medium text-sm">
+              <Link to="/transactions" className="text-gray-600 hover:text-gray-700 font-medium text-sm">
                 View all →
               </Link>
             </div>
@@ -148,7 +148,7 @@ const Dashboard = () => {
               <div className="text-center py-8">
                 <div className="text-4xl mb-4">📝</div>
                 <h3 className="text-lg font-medium mb-2">No transactions yet</h3>
-                <Link to="/transactions?action=add" className="inline-flex px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                <Link to="/transactions?action=add" className="inline-flex px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
                   Add Transaction
                 </Link>
               </div>
@@ -166,7 +166,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`font-semibold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                      <p className={`font-semibold ${transaction.type === 'income' ? 'text-green-600' : 'text-gray-600'}`}>
                         {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
                       </p>
                       <p className="text-sm text-gray-500">
