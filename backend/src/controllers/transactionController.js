@@ -25,15 +25,53 @@ const createTransaction = async (req, res) => {
 // Get all transactions for user
 const getTransactions = async (req, res) => {
   try {
-    const { limit } = req.query;
-    let query = Transaction.find({ userId: req.userId }).sort({ createdAt: -1 });
+    const { limit, startDate, endDate, type, category } = req.query;
+    
+    // Build filter query
+    let filter = { userId: req.userId };
+    
+    // Add date range filter if provided
+    if (startDate || endDate) {
+      filter.date = {};
+      if (startDate) {
+        filter.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        // Add 23:59:59 to include the entire end date
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        filter.date.$lte = endDateTime;
+      }
+    }
+    
+    // Add type filter if provided
+    if (type && ['income', 'expense'].includes(type)) {
+      filter.type = type;
+    }
+    
+    // Add category filter if provided
+    if (category) {
+      filter.category = category;
+    }
+    
+    let query = Transaction.find(filter).sort({ createdAt: -1 });
     
     if (limit) {
       query = query.limit(parseInt(limit));
     }
     
     const transactions = await query;
-    res.json({ transactions });
+    
+    res.json({ 
+      transactions,
+      filter: {
+        startDate: startDate || null,
+        endDate: endDate || null,
+        type: type || null,
+        category: category || null,
+        total: transactions.length
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -99,7 +137,35 @@ const deleteTransaction = async (req, res) => {
 // Get simple summary
 const getSummary = async (req, res) => {
   try {
-    const transactions = await Transaction.find({ userId: req.userId });
+    const { startDate, endDate, type, category } = req.query;
+    
+    // Build filter query
+    let filter = { userId: req.userId };
+    
+    // Add date range filter if provided
+    if (startDate || endDate) {
+      filter.date = {};
+      if (startDate) {
+        filter.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        filter.date.$lte = endDateTime;
+      }
+    }
+    
+    // Add type filter if provided
+    if (type && ['income', 'expense'].includes(type)) {
+      filter.type = type;
+    }
+    
+    // Add category filter if provided
+    if (category) {
+      filter.category = category;
+    }
+    
+    const transactions = await Transaction.find(filter);
     
     const income = transactions
       .filter(t => t.type === 'income')
@@ -113,7 +179,14 @@ const getSummary = async (req, res) => {
       summary: {
         totalIncome: income,
         totalExpense: expense,
-        balance: income - expense
+        balance: income - expense,
+        transactionCount: transactions.length,
+        filter: {
+          startDate: startDate || null,
+          endDate: endDate || null,
+          type: type || null,
+          category: category || null
+        }
       }
     });
   } catch (error) {

@@ -9,6 +9,13 @@ const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [filters, setFilters] = useState({
+    startDate: '',
+    endDate: '',
+    type: '',
+    category: ''
+  });
+  const [showFilters, setShowFilters] = useState(false);
   const [formData, setFormData] = useState({
     type: 'expense',
     amount: '',
@@ -31,9 +38,15 @@ const Transactions = () => {
     }
   }, [searchParams]);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (filterParams = {}) => {
     try {
-      const response = await transactionAPI.getAll();
+      const params = { ...filters, ...filterParams };
+      // Remove empty values
+      const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([, value]) => value !== '' && value !== null)
+      );
+      
+      const response = await transactionAPI.getAll(cleanParams);
       const transactionsData = response.transactions || [];
       // Sort by date in descending order (most recent first)
       const sortedTransactions = transactionsData.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -43,6 +56,34 @@ const Transactions = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (field, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const applyFilters = () => {
+    setLoading(true);
+    fetchTransactions();
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      startDate: '',
+      endDate: '',
+      type: '',
+      category: ''
+    });
+    setLoading(true);
+    fetchTransactions({
+      startDate: '',
+      endDate: '',
+      type: '',
+      category: ''
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -101,13 +142,102 @@ const Transactions = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Transactions</h1>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-          >
-            Add Transaction
-          </button>
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 flex items-center space-x-2"
+            >
+              <span>🔍</span>
+              <span>Filters</span>
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+            >
+              Add Transaction
+            </button>
+          </div>
         </div>
+
+        {/* Filter Section */}
+        {showFilters && (
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                <input
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-gray-500 focus:border-gray-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                <input
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-gray-500 focus:border-gray-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select
+                  value={filters.type}
+                  onChange={(e) => handleFilterChange('type', e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-gray-500 focus:border-gray-500"
+                >
+                  <option value="">All Types</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-gray-500 focus:border-gray-500"
+                >
+                  <option value="">All Categories</option>
+                  {filters.type === 'income' ? (
+                    categories.income.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))
+                  ) : filters.type === 'expense' ? (
+                    categories.expense.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))
+                  ) : (
+                    [...categories.income, ...categories.expense].map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))
+                  )}
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                {transactions.length} transaction{transactions.length !== 1 ? 's' : ''} found
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={clearFilters}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Clear Filters
+                </button>
+                <button
+                  onClick={applyFilters}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-lg shadow">
           {transactions.length === 0 ? (
