@@ -3,36 +3,36 @@ import { Link } from 'react-router-dom';
 const LandingPage = () => {
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-gray-900 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-lg">FA</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
+                <span className="text-white font-semibold text-sm">FA</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">FinanceAssistant</span>
+              <span className="text-xl font-semibold text-slate-900 tracking-tight">FinanceAssistant</span>
             </div>
             
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-gray-900">How it Works</a>
-              <a href="#about" className="text-gray-600 hover:text-gray-900">About</a>
+              <a href="#features" className="text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors">Features</a>
+              <a href="#how-it-works" className="text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors">How it Works</a>
+              <a href="#about" className="text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors">About</a>
             </nav>
 
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <Link 
                 to="/login" 
-                className="text-gray-600 hover:text-gray-900 font-medium"
+                className="text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors"
               >
                 Sign in
               </Link>
               <Link 
                 to="/register" 
-                className="bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 font-medium"
+                className="bg-slate-900 text-white px-5 py-2 rounded-lg hover:bg-slate-800 font-medium text-sm transition-all duration-200"
               >
                 Get Started
               </Link>
@@ -44,57 +44,48 @@ const LandingPage = () => {
       {/* Main Content */}
       <main>
         {/* Hero Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              Track Your Finances, Master Your Future
+        <section className="py-24 px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto text-center">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-slate-900 mb-6 tracking-tight leading-tight">
+              Track Your Finances,<br />
+              <span className="font-medium">Master Your Future</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
               Personal finance management made simple with AI-powered insights. 
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
               <Link 
                 to="/register" 
-                className="bg-gray-900 text-white px-8 py-3 rounded-md hover:bg-gray-800 font-medium text-lg"
+                className="bg-slate-900 text-white px-8 py-3 rounded-xl hover:bg-slate-800 font-medium text-base transition-all duration-200 hover:shadow-lg hover:scale-105"
               >
                 Get Started
               </Link>
               <Link 
                 to="/login" 
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 font-medium text-lg"
+                className="flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-base group transition-colors"
               >
-                <span>▶</span>
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-slate-200 transition-colors">
+                  <span className="text-sm">▶</span>
+                </div>
                 <span>Demo Login</span>
               </Link>
             </div>
 
             {/* Finance-themed Graphics */}
-            <div id='home' className="relative mt-16">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-96 h-96 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full opacity-20"></div>
-              </div>
-              <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex flex-col items-center text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                    <span className="text-2xl">📊</span>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Smart Analytics</h3>
-                  <p className="text-gray-600">Visualize your spending patterns with interactive charts</p>
+            <div id='home' className="relative mt-20">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 group">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-3 tracking-tight">Smart Analytics</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">Visualize your spending patterns with interactive charts</p>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex flex-col items-center text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <span className="text-2xl">📱</span>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Receipt OCR</h3>
-                  <p className="text-gray-600">Automatically extract expenses from receipts</p>
+                <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 group">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-3 tracking-tight">Receipt OCR</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">Automatically extract expenses from receipts</p>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex flex-col items-center text-center">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                    <span className="text-2xl">🎯</span>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Easy Tracking</h3>
-                  <p className="text-gray-600">Simple income and expense management</p>
+                <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 group">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-3 tracking-tight">Easy Tracking</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">Simple income and expense management</p>
                 </div>
               </div>
             </div>
@@ -102,99 +93,109 @@ const LandingPage = () => {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Key Features</h2>
-              <p className="text-xl text-gray-600">Everything you need to manage your finances effectively</p>
+        <section id="features" className="py-24 bg-white">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-20">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">Key Features</h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">Everything you need to manage your finances effectively</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
-                  <span className="text-3xl">💰</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Income & Expense Tracking</h3>
-                <p className="text-gray-600">Easily log your income and expenses with detailed categorization</p>
+              <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all duration-300 group">
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Income & Expense Tracking</h3>
+                <p className="text-slate-600 leading-relaxed">Easily log your income and expenses with detailed categorization</p>
               </div>
               
-              <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mb-6">
-                  <span className="text-3xl">📈</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Analytics & Charts</h3>
-                <p className="text-gray-600">Visualize your spending patterns with interactive charts and graphs</p>
+              <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all duration-300 group">
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Analytics & Charts</h3>
+                <p className="text-slate-600 leading-relaxed">Visualize your spending patterns with interactive charts and graphs</p>
               </div>
               
-              <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
-                  <span className="text-3xl">📷</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Receipt Processing</h3>
-                <p className="text-gray-600">Upload receipts and automatically extract transaction details</p>
+              <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all duration-300 group">
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Receipt Processing</h3>
+                <p className="text-slate-600 leading-relaxed">Upload receipts and automatically extract transaction details</p>
               </div>
               
-              <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
-                  <span className="text-3xl">🔍</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Advanced Filtering</h3>
-                <p className="text-gray-600">Filter transactions by date range, category, and search terms</p>
+              <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all duration-300 group">
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Advanced Filtering</h3>
+                <p className="text-slate-600 leading-relaxed">Filter transactions by date range, category, and search terms</p>
               </div>
               
-              <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-yellow-100 rounded-lg flex items-center justify-center mb-6">
-                  <span className="text-3xl">📊</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Category Insights</h3>
-                <p className="text-gray-600">Understand your spending habits with category-wise breakdowns</p>
+              <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all duration-300 group">
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Category Insights</h3>
+                <p className="text-slate-600 leading-relaxed">Understand your spending habits with category-wise breakdowns</p>
               </div>
               
-              <div className="bg-white p-8 rounded-lg shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
-                  <span className="text-3xl">🔄</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-4">PDF Import</h3>
-                <p className="text-gray-600">Import transaction history from PDF statements</p>
+              <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all duration-300 group">
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">PDF Import</h3>
+                <p className="text-slate-600 leading-relaxed">Import transaction history from PDF statements</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20 bg-gray-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Take Control?</h2>
-            <p className="text-xl text-gray-300 mb-8">Start managing your finances today with our powerful tools</p>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Link 
-                to="/register" 
-                className="bg-white text-gray-900 px-8 py-3 rounded-md hover:bg-gray-100 font-medium text-lg"
-              >
-                Get Started Free
-              </Link>
-              <Link 
-                to="/login" 
-                className="text-white border border-white px-8 py-3 rounded-md hover:bg-white hover:text-gray-900 font-medium text-lg"
-              >
-                Sign In
-              </Link>
+        {/* How it Works Section */}
+        <section id="how-it-works" className="py-24 bg-gray-50">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-20">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">How it Works</h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">Get started with your financial journey in just a few simple steps</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 font-semibold text-xl group-hover:bg-slate-800 transition-colors">
+                  1
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Create Your Account</h3>
+                <p className="text-slate-600 leading-relaxed">Sign up in seconds and set up your personalized finance dashboard with secure authentication</p>
+              </div>
+              
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 font-semibold text-xl group-hover:bg-slate-800 transition-colors">
+                  2
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Track Your Finances</h3>
+                <p className="text-slate-600 leading-relaxed">Add income and expenses manually, upload receipts for automatic processing, or import from PDF statements</p>
+              </div>
+              
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 font-semibold text-xl group-hover:bg-slate-800 transition-colors">
+                  3
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Get Insights</h3>
+                <p className="text-slate-600 leading-relaxed">Analyze your spending patterns with interactive charts and receive AI-powered financial recommendations</p>
+              </div>
             </div>
           </div>
         </section>
+
+        {/* About Section */}
+        <section id="about" className="py-24 bg-white">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-light text-slate-900 mb-6 tracking-tight">About FinanceAssistant</h2>
+            <p className="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed mb-12">
+              We believe everyone deserves access to powerful financial tools without complexity. 
+              FinanceAssistant combines AI technology with intuitive design to help you understand 
+              your spending habits and make informed financial decisions.
+            </p>
+          
+          </div>
+        </section>
+
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-6 border-t border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="bg-slate-800 text-white py-8 border-t border-slate-700/50">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between">
-            <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-              <div className="w-6 h-6 bg-gray-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FA</span>
+            <div className="flex items-center space-x-3 mb-4 sm:mb-0">
+              <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
+                <span className="text-white font-semibold text-sm">FA</span>
               </div>
-              <span className="text-lg font-bold">FinanceAssistant</span>
+              <span className="text-lg font-semibold tracking-tight">FinanceAssistant</span>
             </div>
-            <p className="text-gray-400 text-sm">
+            <p className="text-slate-400 text-sm">
               © 2025 Personal Finance Assistant
             </p>
           </div>
@@ -204,4 +205,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage; 
+export default LandingPage;
