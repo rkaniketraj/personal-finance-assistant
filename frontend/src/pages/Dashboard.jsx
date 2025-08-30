@@ -71,26 +71,26 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome to FinanceTracker! 👋
+            Welcome to FinanceAssistant! 👋
           </h1>
           <p className="text-gray-600">Manage your finances with ease</p>
         </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Link to="/transactions?action=add" className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+          <Link to="/transactions?action=add" className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow flex flex-col items-center">
             <div className="text-2xl mb-2">➕</div>
             <h3 className="font-semibold">Add Transaction</h3>
           </Link>
-          <Link to="/receipts" className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+          <Link to="/receipts" className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow flex flex-col items-center">
             <div className="text-2xl mb-2">📷</div>
             <h3 className="font-semibold">Upload Receipt</h3>
           </Link>
-          <Link to="/analysis" className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+          <Link to="/analysis" className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow flex flex-col items-center">
             <div className="text-2xl mb-2">📊</div>
             <h3 className="font-semibold">View Analytics</h3>
           </Link>
-          <Link to="/transactions" className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+          <Link to="/transactions" className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow flex flex-col items-center">
             <div className="text-2xl mb-2">📋</div>
             <h3 className="font-semibold">All Transactions</h3>
           </Link>

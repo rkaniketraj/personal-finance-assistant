@@ -208,7 +208,7 @@ const Transactions = () => {
               required
               value={formData.amount}
               onChange={(e) => setFormData({...formData, amount: e.target.value})}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 p-2"
               placeholder="Enter amount"
             />
           </div>
@@ -234,7 +234,7 @@ const Transactions = () => {
               type="text"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 p-2"
               placeholder="Enter description (optional)"
             />
           </div>

@@ -15,9 +15,9 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4">
             <div className="w-8 h-8 bg-gray-900 rounded flex items-center justify-center">
-              <span className="text-white font-bold text-lg">F</span>
+              <span className="text-white font-bold text-lg">FA</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">FinanceTracker</span>
+            <span className="text-xl font-bold text-gray-900">FinanceAssistant</span>
           </div>
           
           <nav className="hidden md:flex items-center space-x-8">
