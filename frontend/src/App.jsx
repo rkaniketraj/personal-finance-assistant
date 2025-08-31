@@ -32,21 +32,31 @@ function App() {
       if (hasUserData) {
         // We have user data, assume authenticated
         setIsAuth(true);
+        setLoading(false);
       } else {
-        // Try to get profile to check if we have a valid cookie
-        try {
-          const response = await authAPI.getProfile();
-          if (response.user) {
-            setUser(response.user);
-            setIsAuth(true);
+        // Only try to fetch profile if we're not on a public route
+        const currentPath = window.location.pathname;
+        const publicRoutes = ['/', '/login', '/register'];
+        const isPublicRoute = publicRoutes.includes(currentPath);
+        
+        if (!isPublicRoute) {
+          // Try to get profile to check if we have a valid cookie
+          try {
+            const response = await authAPI.getProfile();
+            if (response.user) {
+              setUser(response.user);
+              setIsAuth(true);
+            }
+          } catch {
+            // No valid cookie or server error, stay unauthenticated
+            setIsAuth(false);
           }
-        } catch {
-          // No valid cookie or server error, stay unauthenticated
+        } else {
+          // On public routes, don't make unnecessary API calls
           setIsAuth(false);
         }
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     initAuth();

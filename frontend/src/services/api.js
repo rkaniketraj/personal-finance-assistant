@@ -32,7 +32,13 @@ api.interceptors.response.use(
     // Handle authentication errors
     if (error.response.status === 401) {
       removeToken(); // Clear user data
-      if (!window.location.pathname.includes('/login')) {
+      
+      // Only redirect to login if we're on a protected route
+      const currentPath = window.location.pathname;
+      const publicRoutes = ['/', '/login', '/register'];
+      const isPublicRoute = publicRoutes.includes(currentPath);
+      
+      if (!isPublicRoute && !currentPath.includes('/login')) {
         window.location.href = '/login';
       }
     }

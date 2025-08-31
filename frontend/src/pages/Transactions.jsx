@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import { transactionAPI } from '../services/api';
 import Modal from '../components/common/Modal';
 
 const Transactions = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,8 +39,15 @@ const Transactions = () => {
     income: ['Salary', 'Business', 'Investment', 'Others']
   };
 
-    useEffect(() => {
-    // Initial load
+  useEffect(() => {
+    // Check if we should open add modal from URL params (only on initial load)
+    if (searchParams.get('action') === 'add' && !showAddModal) {
+      setShowAddModal(true);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    // Load transactions whenever filters, pagination, or refresh trigger changes
     const loadTransactions = async () => {
       try {
         setError(null);
@@ -75,12 +83,7 @@ const Transactions = () => {
     };
 
     loadTransactions();
-    
-    // Check if we should open add modal
-    if (searchParams.get('action') === 'add') {
-      setShowAddModal(true);
-    }
-  }, [searchParams, filters, currentPage, itemsPerPage, refreshTrigger]);
+  }, [filters, currentPage, itemsPerPage, refreshTrigger]);
 
   // Remove the separate filter effect since it's now handled above
 
@@ -91,10 +94,13 @@ const Transactions = () => {
     }));
   };
 
-  const applyFilters = () => {
-    setLoading(true);
-    setCurrentPage(1); // Reset to first page when applying filters
-    // The useEffect will handle the API call when currentPage changes
+  // Function to close modal and clear URL params
+  const closeAddModal = () => {
+    setShowAddModal(false);
+    // Clear the URL search parameter when closing modal
+    if (searchParams.get('action') === 'add') {
+      navigate('/transactions', { replace: true });
+    }
   };
 
   const clearFilters = () => {
@@ -109,11 +115,16 @@ const Transactions = () => {
     // The useEffect will handle the API call when filters change
   };
 
+  const applyFilters = () => {
+    setLoading(true);
+    setCurrentPage(1); // Reset to first page when applying filters
+    // The useEffect will handle the API call when currentPage changes
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await transactionAPI.create(formData);
-      setShowAddModal(false);
       setFormData({
         type: 'expense',
         amount: '',
@@ -121,6 +132,11 @@ const Transactions = () => {
         description: '',
         date: new Date().toISOString().split('T')[0]
       });
+      
+      // Close modal and clear URL parameter
+      setShowAddModal(false);
+      navigate('/transactions', { replace: true });
+      
       // Trigger a refresh by updating a state that's in the useEffect dependency array
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
@@ -454,7 +470,7 @@ const Transactions = () => {
       </div>
 
       {/* Add Transaction Modal */}
-      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="Add Transaction">
+      <Modal isOpen={showAddModal} onClose={closeAddModal} title="Add Transaction">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Type</label>
@@ -520,7 +536,7 @@ const Transactions = () => {
           <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
-              onClick={() => setShowAddModal(false)}
+              onClick={closeAddModal}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Cancel
