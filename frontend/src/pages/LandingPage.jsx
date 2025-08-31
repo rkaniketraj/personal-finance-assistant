@@ -127,8 +127,8 @@ const LandingPage = () => {
               </div>
               
               <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all duration-300 group">
-                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">PDF Import</h3>
-                <p className="text-slate-600 leading-relaxed">Import transaction history from PDF statements</p>
+                <h3 className="text-xl font-semibold text-slate-900 mb-4 tracking-tight">Secure Data Storage</h3>
+                <p className="text-slate-600 leading-relaxed">Your financial data is safely stored with us</p>
               </div>
             </div>
           </div>
